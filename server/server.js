@@ -2,12 +2,13 @@ const express = require("express");
 const { db } = require("./db");
 const bodyParser = require("body-parser");
 const app = express();
+require("express-ws")(app);
 
 // redis
 const { publish } = require("./publisher");
-const notify = require("./subscriber");
-notify();
+const subscriber = require("./subscriber");
 
+//!--------------------
 // settings
 const port = 3000;
 
@@ -46,6 +47,12 @@ app.get("/user/:id", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+app.ws("/", (ws, req) => {
+  subscriber.on("message", (chanel, message) => {
+    ws.send(JSON.stringify({ chanel, message: JSON.parse(message) }));
+  });
 });
 
 // server

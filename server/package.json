@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "./scripts/redis.sh; nodemon server.js",
     "ws": "nodemon ws.js",
+    "sub": "nodemon subscriber.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
