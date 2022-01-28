@@ -1,16 +1,15 @@
 const express = require("express");
 const { db } = require("./db");
 const bodyParser = require("body-parser");
+const webSocket = require("ws");
+const conf = require("./config");
 const app = express();
-// require("express-ws")(app);
 
 // redis
 const { publish } = require("./publisher");
-// const subscriber = require("./subscriber");
+const subscriber = require("./subscriber");
 
 //!--------------------
-// settings
-const port = 3000;
 
 // middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -49,13 +48,45 @@ app.get("/user/:id", async (req, res, next) => {
   }
 });
 
-// app.ws("/", (ws, req) => {
-//   subscriber.on("message", (chanel, message) => {
-//     ws.send(JSON.stringify({ chanel, message: JSON.parse(message) }));
-//   });
-// });
+//!-----ws
 
-// server
-app.listen(port, () => {
-  console.log(`http server ${port}`);
+const webSocketServer = new webSocket.Server({ noServer: true });
+let wsConnectId = 0;
+
+webSocketServer.broadcast = (data) => {
+  //ws iteration clients
+  webSocketServer.clients.forEach((client) => {
+    //ws verify open and test id
+    if (client.readyState === webSocket.OPEN && client.id === 2) {
+      //send data
+      client.send(data);
+    }
+  });
+};
+
+//ws connect
+webSocketServer.on("connection", (wsConnect, req) => {
+  //ws add id for verify ws client
+  wsConnectId = wsConnectId + 1;
+  wsConnect.id = wsConnectId;
+  console.log(`New WS client ID:${wsConnect.id}`);
+
+  //redis subscriber
+  subscriber.on("message", (chanel, message) => {
+    const msg = JSON.stringify({ chanel, message: JSON.parse(message) });
+    webSocketServer.broadcast(msg);
+  });
 });
+
+// start http server
+// https://masteringjs.io/tutorials/express/websockets
+app
+  .listen(conf.HTTP_PORT, () => {
+    console.log(`http run on port: ${conf.HTTP_PORT}`);
+  })
+  .on("upgrade", (request, socket, head) => {
+    webSocketServer.handleUpgrade(request, socket, head, (socket) => {
+      console.log(request);
+      webSocketServer.emit("connection", socket, request);
+    });
+  });

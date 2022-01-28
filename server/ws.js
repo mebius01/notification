@@ -1,16 +1,8 @@
 //!-----ws
 const webSocket = require("ws");
 const subscriber = require("./subscriber");
-const uuid = require("uuid").v4;
-//settings
-const WEB_SOCKET_PORT = 3001;
-const webSocketServer = new webSocket.Server({ port: WEB_SOCKET_PORT });
 
-// const decoder = (message) => {
-//   const decoder = new TextDecoder("utf-8");
-//   const arr8 = new Uint8Array(message);
-//   return decoder.decode(arr8);
-// };
+const webSocketServer = new webSocket.Server({ noServer: true });
 
 let wsConnectId = 0;
 
