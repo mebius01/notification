@@ -19,6 +19,7 @@
     "ioredis": "^4.28.3",
     "node-redis-pubsub": "^5.0.0",
     "redis": "^4.0.2",
+    "uuid": "^8.3.2",
     "ws": "^8.4.2"
   },
   "devDependencies": {

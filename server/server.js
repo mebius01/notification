@@ -2,11 +2,11 @@ const express = require("express");
 const { db } = require("./db");
 const bodyParser = require("body-parser");
 const app = express();
-require("express-ws")(app);
+// require("express-ws")(app);
 
 // redis
 const { publish } = require("./publisher");
-const subscriber = require("./subscriber");
+// const subscriber = require("./subscriber");
 
 //!--------------------
 // settings
@@ -49,11 +49,11 @@ app.get("/user/:id", async (req, res, next) => {
   }
 });
 
-app.ws("/", (ws, req) => {
-  subscriber.on("message", (chanel, message) => {
-    ws.send(JSON.stringify({ chanel, message: JSON.parse(message) }));
-  });
-});
+// app.ws("/", (ws, req) => {
+//   subscriber.on("message", (chanel, message) => {
+//     ws.send(JSON.stringify({ chanel, message: JSON.parse(message) }));
+//   });
+// });
 
 // server
 app.listen(port, () => {
